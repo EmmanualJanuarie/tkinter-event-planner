@@ -8,7 +8,7 @@ def is_none(text):
     return text is None
 
 #detect if user enters a number instead of text
-def is_Number(text):
+def is_Number_login(text):
     if re.search(r'[0-9]', text): # checks to see if the text is a number
         messagebox.showwarning("Warning", "First or last name field(s) can't contain numbers!")
 
@@ -17,7 +17,7 @@ def is_Number(text1, text2):
         messagebox.showwarning("Warning", "First or last name field(s) can't contain numbers!")
 
 #detect if user leaves input blank
-def is_blank(text):
+def is_blank_login(text):
     if is_none(text):#Checks to see if the input is blank
        messagebox.showwarning("Input Error", "Input Field(s) cant be blank!")
 
@@ -33,22 +33,32 @@ def is_blank(text1, text2, text3, text4, text5):
         return True  # Indicate that there was an empty input
     return False  # All inputs are valid
 
-#detect if users does not enter the correct password requirements
-def is_required_password(password_text):
-    # Define the regex pattern
-    # This pattern matches any character that is not a letter, digit, space, or the allowed special characters (@, _, -)
-    pattern = r'[^a-zA-Z0-9 @]'
+def is_required_password_login(password_text):
+    # Define the regex pattern for allowed characters
+    pattern = r'[^a-zA-Z0-9@]'
 
-    if len(password_text) < 8: #checking if password text contains more than 8 chracters
-       messagebox.showwarning("Warning", "Password must be greater than 8 characters!")
-    elif not re.search(r'\d', password_text): #checking if password text contains numbers
-        messagebox.showwarning("Warning", "Password must contains numbers!")
-    elif not re.search(pattern, password_text):
-        messagebox.showwarning("Warning", "Password must contain special characters (allowed '@')")
-    elif not re.search(r'[A-Z]', password_text):
-        messagebox.showwarning("Warning", "Password must atleast contain two or more upercase chatacters")
-    else:
-        return password_text
+    # Check if the password is at least 8 characters long
+    if len(password_text) < 8:
+        messagebox.showwarning("Warning", "Password must be greater than 8 characters!")
+        return None
+
+    # Check if the password contains at least one digit
+    if not re.search(r'\d', password_text):
+        messagebox.showwarning("Warning", "Password must contain numbers!")
+        return None
+
+    # Check if the password contains only allowed characters
+    if re.search(pattern, password_text):
+        messagebox.showwarning("Warning", "Password must only contain letters, numbers, and '@' as a special character.")
+        return None
+
+    # Check if the password contains at least one uppercase character
+    if not re.search(r'[A-Z]', password_text):  # Change this line
+        messagebox.showwarning("Warning", "Password must contain at least one uppercase character.")
+        return None
+
+    # If all checks pass, return the password
+    return password_text
     
 def is_required_password(password_text1, password_text2):
     # Define the regex pattern for allowed characters
