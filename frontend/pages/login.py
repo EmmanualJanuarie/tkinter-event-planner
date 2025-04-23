@@ -1,6 +1,9 @@
 import customtkinter
+import sys
+import os
 from tkinter import messagebox
 from PIL import Image, ImageTk, ImageDraw
+sys.path.append(os.path.abspath("C:\\Users\\Emmanual.Januarie\\Documents\\GitHub\\tkinter-event-planner"))
 
 #Importing registration GUI
 from registration import App as RegistrationGUI
@@ -25,7 +28,27 @@ class App(customtkinter.CTk):
 
         self.regGUI = RegistrationGUI()#created instance of registration Gui
         self.regGUI.mainloop()#this will run the GUI
+    
+    '''Creating function to drect user to event planner GUI'''
+    
+    def to_event_planner_section(self):
+        from frontend.pages.eventplanner_section import App as eventPlannerGUI
+        # Code to remove current GUI
+        self.destroy()  # Corrected from destory() to destroy()
 
+        self.event_planner_gui = eventPlannerGUI()  # Create instance of eventPlannerGUI
+        self.event_planner_gui.mainloop()  # This will run the GUI
+    
+    '''Fabricated function to direct user to event planner form, if password matches database values'''
+    def login_Authentication(self, email, password):  # Add self as the first parameter
+        if email == "johndoe123@gmail.com" and password == "P@ssword123":
+            messagebox.showwarning("Successful Login", "Directing you to main page")
+
+            # ESTABLISHING CODE TO DIRECT TO EVENT PLANNER
+            self.to_event_planner_section()  # Call the method on the current instance
+            
+        else:
+            messagebox.showerror("Error Occurred", "Password or email does not exist!")
 
     def create_login_form(self):
 
@@ -103,12 +126,22 @@ class App(customtkinter.CTk):
         return rounded_image
 
     def submit_form(self):
+        from error.error_handeling import is_required_email, is_email_domained,is_required_password_login, is_blank_login
         # Logic to handle registration
-        email = self.email_entry.get()
-        password = self.password_entry.get()
+        email = self.email_input.get()
+        password = self.password_input.get()
 
-        # Here you can add logic to save the data or validate it
-        # messagebox.showinfo("Registration", f"Registered: {first_name} {last_name}, Email: {email}")
+        # Logic to handle registration
+        is_blank_login(email) # Function | check if email is null
+        is_blank_login(password) # Function | check if email is null
+
+        is_email_domained(email) #Function | Checks if email has a domain
+        is_required_email(email) #Function | Checks if email has required content
+        
+        is_required_password_login(password) #Function | Checks if password  has required content
+
+        '''calling function to direct user to event planer Gui'''
+        self.login_Authentication(email, password)
 
 if __name__ == "__main__":
     app = App()
