@@ -15,6 +15,18 @@ class App(customtkinter.CTk):
         # Call the function to create the form and image
         self.create_registration_form()
 
+    '''creating a function to direct user to the Login form'''
+    def toggleToLogin(self, event):
+
+        #Importing login GUI
+        from login import App as LoginGUI
+        #Code to remove current GUI
+        self.destroy()
+
+        self.loginGUI = LoginGUI()#created instance of registration Gui
+        self.loginGUI.mainloop()#this will run the GUI
+
+
     def create_registration_form(self):
 
         '''functions for determine the hover in and out of a label'''
@@ -62,7 +74,7 @@ class App(customtkinter.CTk):
         self.submit_button.grid(row=5, columnspan=2, pady=20)
 
         #Text to direct user to login form
-        self.toLogin_lbl = customtkinter.CTkLabel(form_frame, text="Direct to Login", font=("", 12), text_color="gray", )
+        self.toLogin_lbl = customtkinter.CTkLabel(form_frame, text="Already have an Account? login", font=("", 12), text_color="gray", )
         self.toLogin_lbl.grid(row=5, columnspan=2, pady=(60, 0 ))
 
         
@@ -70,6 +82,9 @@ class App(customtkinter.CTk):
         #Binding hover event to loginlabel
         self.toLogin_lbl.bind("<Enter>", on_enter_label)
         self.toLogin_lbl.bind("<Leave>", on_leave_label)
+
+        # Bind the click event to the label
+        self.toLogin_lbl.bind("<Button-1>", self.toggleToLogin)
 
         # Load and display an image
         self.display_image()
@@ -101,14 +116,30 @@ class App(customtkinter.CTk):
         return rounded_image
 
     def submit_form(self):
-        # Logic to handle registration
-        first_name = self.first_name_entry.get()
-        last_name = self.last_name_entry.get()
-        email = self.email_entry.get()
-        password = self.password_entry.get()
+        from error.error_handeling import is_blank, is_Number, is_required_email, is_email_domained, is_password_match, is_required_password
 
-        # Here you can add logic to save the data or validate it
-        messagebox.showinfo("Registration", f"Registered: {first_name} {last_name}, Email: {email}")
+        first_name = self.first_name_input.get() #Obtainig value of fname variable
+        last_name = self.last_name_input.get() #Obtainig value of lname variable
+        email = self.email_input.get() #Obtainig value of email variable
+        password = self.password_input.get() #Obtainig value of password variable
+        confirm_password = self.con_password_input.get() #Obtainig value of confirm password variable
+
+        # Logic to handle registration
+        is_blank(first_name, last_name, email, password, confirm_password)  # Function | check if text is null
+
+        is_Number(first_name, last_name) # Function | check if text contains a number
+
+        is_required_email(email) #Function | checks if email meets the correct requirements
+
+        is_email_domained(email) #Function | checks if email meets the has a domain 
+
+        is_password_match(password, confirm_password) #function | checks if password matches
+
+        is_required_password(password, confirm_password) #function | checks if password has the requirements
+
+
+
+       
 
 if __name__ == "__main__":
     app = App()
