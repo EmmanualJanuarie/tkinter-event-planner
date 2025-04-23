@@ -26,7 +26,7 @@ class App(customtkinter.CTk):
         self.loginGUI = LoginGUI()#created instance of registration Gui
         self.loginGUI.mainloop()#this will run the GUI
 
-
+    '''creating a function to be called to render the creation og the form'''
     def create_registration_form(self):
 
         '''functions for determine the hover in and out of a label'''
@@ -89,6 +89,7 @@ class App(customtkinter.CTk):
         # Load and display an image
         self.display_image()
 
+    '''creating a function to display an image'''
     def display_image(self):
         # Load an image using PIL
         image = Image.open("frontend/src/assests/eventplanner_img.png")  # Replace with your image path
@@ -115,6 +116,7 @@ class App(customtkinter.CTk):
 
         return rounded_image
 
+    '''creating an function to submit form data'''
     def submit_form(self):
         from error.error_handeling import is_blank, is_Number, is_required_email, is_email_domained, is_password_match, is_required_password
 
