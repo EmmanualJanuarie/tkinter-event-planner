@@ -97,7 +97,8 @@ class App(customtkinter.CTk):
         self.photo = ImageTk.PhotoImage(rounded_image)
 
         # Create a label to display the image
-        image_label = customtkinter.CTkLabel(self,image=self.photo, corner_radius=200)
+        image_label = customtkinter.CTkLabel(self,image=self.photo, corner_radius=200,
+                                             text="")
         image_label.grid(row=0,column=0, padx=20, pady=20)
 
     '''Function creates rounded edge of image'''
