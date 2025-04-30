@@ -13,10 +13,13 @@ def init_db():
     c = conn.cursor()
     # Create the events table if it doesn't already exist
     c.execute('''CREATE TABLE IF NOT EXISTS events (
+                    client_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     title TEXT,
                     date TEXT,
                     time TEXT,
                     location TEXT,
+                    category TEXT,
+                    client_name TEXT,
                     description TEXT)''')
     conn.commit()  # Commit the changes to the database
     conn.close()   # Close the database connection
@@ -69,7 +72,7 @@ class App(customtkinter.CTk):
                                                   command=self.show_saved_events)
         self.events_btn.pack(pady=10)
 
-        self.another_btn = customtkinter.CTkButton(self.sidebar_frame, text="Another", fg_color="#2b2b2b", hover_color="gray",
+        self.another_btn = customtkinter.CTkButton(self.sidebar_frame, text="Guests", fg_color="#2b2b2b", hover_color="gray",
                                                    command=self.show_placeholder)
         self.another_btn.pack(pady=10)
 
@@ -167,11 +170,13 @@ class App(customtkinter.CTk):
             from modifyEventsForm import App as modifyEvents  # Import the modify events GUI
             modifyEvents_instance = modifyEvents()  # Create an instance of the modify events GUI
             modifyEvents_instance.show_event_form(
-                title=data[0],
-                date=data[1],
-                time=data[2],
-                location=data[3],
-                description=data[4]  # Pass the event details to the modify events form
+                title=data[1],
+                date=data[2],
+                time=data[3],
+                location=data[4],
+                category=data[5],
+                client_name=data[6],
+                description=data[7]  # Pass the event details to the modify events form
             )
             modifyEvents_instance.mainloop()  # Run the modify events GUI
 
@@ -187,7 +192,7 @@ class App(customtkinter.CTk):
         if confirm:
             conn = sqlite3.connect("events.db")  # Connect to the database
             c = conn.cursor()
-            c.execute("DELETE FROM events WHERE title=? AND date=? AND time=?", (data[0], data[1], data[2]))  # Delete the event
+            c.execute("DELETE FROM events WHERE client_id=?", (data[0]))  # Delete the event
             conn.commit()  # Commit the changes
             conn.close()  # Close the database connection
             messagebox.showinfo("Deleted", "Event deleted successfully!")  # Show success message
