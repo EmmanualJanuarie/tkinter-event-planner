@@ -63,6 +63,14 @@ class App(customtkinter.CTk):
         self.CreateQuoteGUI = CreateQuoteGUI()  # Create an instance of the Create Quote GUI
         self.CreateQuoteGUI.mainloop()  # Run the Create Quote GUI
 
+    '''Function to toggle the create guest form'''
+    def toggle_createGuestForm(self):
+        from createGuests import App as CreateGuestGUI  # Import the Create Quote GUI
+        self.CreateGuestGUI = CreateGuestGUI()  # Create an instance of the Create Quote GUI
+        self.CreateGuestGUI.mainloop()  # Run the Create Quote GUI
+
+
+
     '''Function to create the main GUI layout for the event planner'''
     def create_event_planner_GUI(self):
         # Create a sidebar frame for navigation
@@ -178,8 +186,8 @@ class App(customtkinter.CTk):
         table_frame.pack(padx=10, pady=10, fill="both", expand=True)
 
         # Treeview for displaying events
-        self.tree = ttk.Treeview(table_frame, columns=("Id" ,"client_id", "name", "email", "category", "client_name"), show="headings")
-        for col in ("Id" ,"client_id", "name", "email", "category", "client_name"):
+        self.tree = ttk.Treeview(table_frame, columns=("Id" ,"category", "name", "email", "client_id", "client_name"), show="headings")
+        for col in ("Id" ,"category", "name", "email", "client_id", "client_name"):
             self.tree.heading(col, text=col)  # Set column headings
             self.tree.column(col, width=150 if col in ["name", "email"] else 100)  # Set column widths
 
@@ -193,9 +201,9 @@ class App(customtkinter.CTk):
         btn_frame = customtkinter.CTkFrame(self.form_frame_content, fg_color="#333333")
         btn_frame.pack(pady=10)
 
-        # Button to create a quote
-        update_btn = customtkinter.CTkButton(btn_frame, text="Create Guests")
-        update_btn.grid(row=0, column=0, padx=10)
+        # Button to create a Guest
+        guest_add = customtkinter.CTkButton(btn_frame, text="Add Guests",command=self.toggle_createGuestForm, fg_color= "red")
+        guest_add.grid(row=0, column=0, pady=(0, 0), padx=(0, 0))
 
         # Button to create a new event
         delete_btn = customtkinter.CTkButton(btn_frame, text="Invitations")

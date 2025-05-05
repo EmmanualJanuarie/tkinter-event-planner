@@ -33,6 +33,7 @@ class App(customtkinter.CTk):
         for widget in self.form_frame_content.winfo_children():
             widget.destroy()
 
+    
 
     # Call the function to create the form and image
     def show_guest_form(self):

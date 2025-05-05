@@ -29,12 +29,7 @@ class App(customtkinter.CTk):
         # Call the function to create the form and image
         self.show_event_form()
 
-    '''Function to toggle the create guest form'''
-    def toggle_createGuestForm(self):
-        from createGuests import App as CreateGuestGUI  # Import the Create Quote GUI
-        self.CreateGuestGUI = CreateGuestGUI()  # Create an instance of the Create Quote GUI
-        self.CreateGuestGUI.mainloop()  # Run the Create Quote GUI
-
+    
     def show_event_form(self, client_id="", title="", date="", time="", location="", category="", client_name="", description=""):
         self.clear_content()
 
@@ -102,9 +97,7 @@ class App(customtkinter.CTk):
         update_btn = customtkinter.CTkButton(btn_frame, text="Update Event", command=self.update_event)
         update_btn.grid(row=0, column=1, pady=10)
 
-        guest_add = customtkinter.CTkButton(btn_frame, text="Add Guests", command=self.toggle_createGuestForm, fg_color= "red", width=100)
-        guest_add.grid(row=1, column=0, pady=(0, 0), padx=(0, 0))
-
+        
     def delete_event(self, client_id):
         confirm = messagebox.askyesno("Delete", f"Are you sure you want to delete the event with ID: '{client_id}'?")
         if confirm:
