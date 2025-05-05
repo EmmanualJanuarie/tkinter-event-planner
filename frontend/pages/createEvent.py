@@ -35,7 +35,6 @@ class App(customtkinter.CTk):
 
     def create_event_form(self):
         client_id = self.entry_client_id.get()
-        title = self.entry_title.get()
         date = self.entry_date.get()
         time = self.entry_time.get()
         location = self.entry_location.get()
@@ -43,22 +42,23 @@ class App(customtkinter.CTk):
         client_name = self.entry_client_name.get()
         description = self.text_description.get("1.0", "end").strip()
 
-        if not all([title, date, time, location, category,  description]):
+        if not all([category, date, time, location, description]):
             messagebox.showerror("Input Error", "Please fill all fields.")
             return
 
         conn = sqlite3.connect("events.db")
         c = conn.cursor()
-        c.execute("INSERT INTO events VALUES (?, ?, ?, ?, ?, ?, ?)", (title, date, time, location, category, client_name, description))
+        c.execute("INSERT INTO events (category, date, time, location, client_name, description) VALUES (?, ?, ?, ?, ?, ?)", 
+            (category, date, time, location, client_name, description))
+
         conn.commit()
         conn.close()
         messagebox.showinfo("Success", "Event added successfully!")
 
-        self.entry_title.delete(0, 'end')
-        self.entry_date.delete('')
+        self.entry_date.delete(0, 'end')
         self.entry_time.delete(0, 'end')
         self.entry_location.delete(0, 'end')
-        self.entry_event_type.delete('')
+        self.entry_event_type.delete(0, 'end')
         self.entry_client_name.delete(0, 'end')
         self.text_description.delete("1.0", "end")
 
@@ -80,11 +80,6 @@ class App(customtkinter.CTk):
 
         # Insert text into the entry
         self.entry_client_id.insert(0, 'Auto-generated ID')  # Placeholder text
-
-        # Input | Title
-        self.entry_title = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Title", corner_radius=20,
-                                                  width=300, border_width=0, text_color='black')
-        self.entry_title.grid(row=2, column=1, pady=5, padx=10)
 
         # Input | Date
         self.entry_date = tkcalendar.DateEntry(self.form_frame_content, width=45, background='2b2b2b',

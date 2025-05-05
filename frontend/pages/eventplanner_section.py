@@ -11,16 +11,26 @@ def init_db():
     # Connect to the SQLite database (creates it if it doesn't exist)
     conn = sqlite3.connect("events.db")
     c = conn.cursor()
+    
     # Create the events table if it doesn't already exist
     c.execute('''CREATE TABLE IF NOT EXISTS events (
                     client_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    title TEXT,
+                    category TEXT,
                     date TEXT,
                     time TEXT,
                     location TEXT,
-                    category TEXT,
                     client_name TEXT,
                     description TEXT)''')
+    
+    # Create the guests table if it doesn't already exist
+    c.execute('''CREATE TABLE IF NOT EXISTS guests (
+                    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    client_id INTEGER,
+                    name TEXT, 
+                    email TEXT,
+                    event_title TEXT,
+                    FOREIGN KEY (client_id) REFERENCES events(client_id))''')
+    
     conn.commit()  # Commit the changes to the database
     conn.close()   # Close the database connection
 
@@ -73,7 +83,7 @@ class App(customtkinter.CTk):
         self.events_btn.pack(pady=10)
 
         self.another_btn = customtkinter.CTkButton(self.sidebar_frame, text="Guests", fg_color="#2b2b2b", hover_color="gray",
-                                                   command=self.show_placeholder)
+                                                   command=self.show_saved_guests)
         self.another_btn.pack(pady=10)
 
         # Configure the sidebar frame
@@ -122,8 +132,8 @@ class App(customtkinter.CTk):
         table_frame.pack(padx=10, pady=10, fill="both", expand=True)
 
         # Treeview for displaying events
-        self.tree = ttk.Treeview(table_frame, columns=("Title", "Date", "Time", "Location", "Description"), show="headings")
-        for col in ("Title", "Date", "Time", "Location", "Description"):
+        self.tree = ttk.Treeview(table_frame, columns=("Id" ,"Category", "Date", "Time", "Location", "Client Name", "Description"), show="headings")
+        for col in ("Id","Category", "Date", "Time", "Location", "Client Name","Description"):
             self.tree.heading(col, text=col)  # Set column headings
             self.tree.column(col, width=150 if col in ["Title", "Location"] else 100)  # Set column widths
 
@@ -143,6 +153,52 @@ class App(customtkinter.CTk):
 
         # Button to create a new event
         delete_btn = customtkinter.CTkButton(btn_frame, text="Create Event", command=self.toggle_createEventForm)
+        delete_btn.grid(row=0, column=1, padx=10)
+
+    '''Function to load guests from the database into the treeview'''
+    def load_guests_into_tree(self):
+        for row in self.tree.get_children():
+            self.tree.delete(row)  # Clear existing rows in the treeview
+
+        with sqlite3.connect("events.db") as conn:
+            c = conn.cursor()
+            c.execute("SELECT * FROM guests")  # Query to select all events
+            events = c.fetchall()  # Fetch all events
+
+        for event in events:
+            self.tree.insert("", "end", values=event)  # Insert each event into the treeview
+
+    '''Function to display saved events in a list'''
+    def show_saved_guests(self):
+        self.clear_content()  # Clear previous content
+        self.title("Event Planner | Guests")  # Update window title
+
+        # Frame for the events table
+        table_frame = customtkinter.CTkFrame(self.form_frame_content, width=0)
+        table_frame.pack(padx=10, pady=10, fill="both", expand=True)
+
+        # Treeview for displaying events
+        self.tree = ttk.Treeview(table_frame, columns=("Id" ,"client_id", "name", "email", "category", "client_name"), show="headings")
+        for col in ("Id" ,"client_id", "name", "email", "category", "client_name"):
+            self.tree.heading(col, text=col)  # Set column headings
+            self.tree.column(col, width=150 if col in ["name", "email"] else 100)  # Set column widths
+
+        self.tree.pack(fill="both", expand=True)  # Add the treeview to the table frame
+        self.load_guests_into_tree()  # Load events from the database into the treeview
+
+        # Bind the selection event to update the selected event
+        # self.tree.bind("<<TreeviewSelect>>", lambda event: self.update_selected_event())
+
+        # Frame for action buttons
+        btn_frame = customtkinter.CTkFrame(self.form_frame_content, fg_color="#333333")
+        btn_frame.pack(pady=10)
+
+        # Button to create a quote
+        update_btn = customtkinter.CTkButton(btn_frame, text="Create Guests")
+        update_btn.grid(row=0, column=0, padx=10)
+
+        # Button to create a new event
+        delete_btn = customtkinter.CTkButton(btn_frame, text="Invitations")
         delete_btn.grid(row=0, column=1, padx=10)
 
     '''Function to load events from the database into the treeview'''
@@ -170,13 +226,13 @@ class App(customtkinter.CTk):
             from modifyEventsForm import App as modifyEvents  # Import the modify events GUI
             modifyEvents_instance = modifyEvents()  # Create an instance of the modify events GUI
             modifyEvents_instance.show_event_form(
-                title=data[1],
+                client_id=data[0],
+                category=data[1],
                 date=data[2],
                 time=data[3],
                 location=data[4],
-                category=data[5],
-                client_name=data[6],
-                description=data[7]  # Pass the event details to the modify events form
+                client_name=data[5],
+                description=data[6]  # Pass the event details to the modify events form
             )
             modifyEvents_instance.mainloop()  # Run the modify events GUI
 

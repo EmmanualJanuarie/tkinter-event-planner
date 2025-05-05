@@ -2,8 +2,9 @@ import customtkinter
 import sys
 import os
 from tkinter import messagebox
+from customtkinter import CTkImage  # Import CTkImage
 from PIL import Image, ImageTk, ImageDraw
-sys.path.append(os.path.abspath("C:\\Users\\Emmanual.Januarie\\Documents\\GitHub\\tkinter-event-planner"))
+sys.path.append(os.path.abspath("C:\\Users\\tallyta\\Documents\\GitHub\\tkinter-event-planner"))
 
 #Importing registration GUI
 from registration import App as RegistrationGUI
@@ -103,13 +104,14 @@ class App(customtkinter.CTk):
         # Load an image using PIL
         image = Image.open("frontend/src/assests/eventplanner_img_login.png")  # Replace with your image path
         rounded_image = self.create_rounded_image(image, (270, 230), 5)  # Create rounded image
+        
+        # Convert the rounded PIL image to PhotoImage
         self.photo = ImageTk.PhotoImage(rounded_image)
 
         # Create a label to display the image
-        image_label = customtkinter.CTkLabel(self,image=self.photo, corner_radius=200,
-                                             text="")
-        image_label.grid(row=0,column=1, padx=20, pady=20)
-
+        image_label = customtkinter.CTkLabel(self, image=self.photo, corner_radius=200, text="")
+        image_label.grid(row=0, column=1, padx=20, pady=20)
+        
     '''Function creates rounded edge of image'''
     def create_rounded_image(self, image, size, corner_radius):
         image = image.resize(size, Image.LANCZOS)  # Resize image

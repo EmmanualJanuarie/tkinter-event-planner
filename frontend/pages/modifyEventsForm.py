@@ -29,6 +29,12 @@ class App(customtkinter.CTk):
         # Call the function to create the form and image
         self.show_event_form()
 
+    '''Function to toggle the create guest form'''
+    def toggle_createGuestForm(self):
+        from createGuests import App as CreateGuestGUI  # Import the Create Quote GUI
+        self.CreateGuestGUI = CreateGuestGUI()  # Create an instance of the Create Quote GUI
+        self.CreateGuestGUI.mainloop()  # Run the Create Quote GUI
+
     def show_event_form(self, client_id="", title="", date="", time="", location="", category="", client_name="", description=""):
         self.clear_content()
 
@@ -40,12 +46,6 @@ class App(customtkinter.CTk):
                                                   width=300, border_width=0, text_color='black')
         self.entry_client_id.grid(row=1, column=1, pady=5, padx=10)
         self.entry_client_id.insert(0, client_id)  # Populate with existing title
-
-        # Input | Title
-        self.entry_title = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Title", corner_radius=20,
-                                                  width=300, border_width=0, text_color='black')
-        self.entry_title.grid(row=2, column=1, pady=5, padx=10)
-        self.entry_title.insert(0, title)  # Populate with existing title
 
         # Input | Date
         self.entry_date = tkcalendar.DateEntry(self.form_frame_content, width=45, background='2b2b2b',
@@ -96,28 +96,35 @@ class App(customtkinter.CTk):
         btn_frame = customtkinter.CTkFrame(self.form_frame_content, fg_color="#333333")
         btn_frame.grid(row=9, column=0, columnspan=2, pady=10)
 
-        delete_btn = customtkinter.CTkButton(btn_frame, text="Delete Event", command=lambda: self.delete_event(title, client_id))
+        delete_btn = customtkinter.CTkButton(btn_frame, text="Delete Event", command=lambda: self.delete_event(client_id))
         delete_btn.grid(row=0, column=0, pady=10, padx=20)
 
         update_btn = customtkinter.CTkButton(btn_frame, text="Update Event", command=self.update_event)
         update_btn.grid(row=0, column=1, pady=10)
 
-    def delete_event(self, title, client_id):
-        confirm = messagebox.askyesno("Delete", f"Are you sure you want to delete the event '{title}'?")
+        guest_add = customtkinter.CTkButton(btn_frame, text="Add Guests", command=self.toggle_createGuestForm, fg_color= "red", width=100)
+        guest_add.grid(row=1, column=0, pady=(0, 0), padx=(0, 0))
+
+    def delete_event(self, client_id):
+        confirm = messagebox.askyesno("Delete", f"Are you sure you want to delete the event with ID: '{client_id}'?")
         if confirm:
             conn = sqlite3.connect("events.db")
             c = conn.cursor()
-            c.execute("DELETE FROM events WHERE clent_id=?", (client_id))
+            
+            # Wrap client_id in a tuple
+            c.execute("DELETE FROM events WHERE client_id=?", (client_id,))
+            
             conn.commit()
             conn.close()
             messagebox.showinfo("Deleted", "Event deleted successfully!")
             self.close_event_form()  # Close the modify events form
+            
+            # Refresh the events list in the main app
             from eventplanner_section import App as planner
-            planner().show_saved_events()  # Refresh the events list in the main app
+            planner().show_saved_events()
 
     def update_event(self):
         updated_client_id = self.entry_client_id.get()
-        updated_title = self.entry_title.get()
         updated_date = self.entry_date.get()
         updated_time = self.entry_time.get()
         updated_location = self.entry_location.get()
@@ -125,14 +132,14 @@ class App(customtkinter.CTk):
         updated_client_name = self.entry_client_name.get()
         updated_description = self.text_description.get("1.0", "end-1c")
 
-        if not all([updated_title, updated_date, updated_time, updated_location, updated_category, updated_client_name, updated_description]):
+        if not all([updated_date, updated_time, updated_location, updated_category, updated_client_name, updated_description]):
             messagebox.showerror("Input Error", "Please fill all fields.")
             return
 
         conn = sqlite3.connect("events.db")
         c = conn.cursor()
-        c.execute("UPDATE events SET title=?, date=?, time=?, location=?, category=?, client_name=? description=? WHERE client_id=?", 
-                  (updated_title, updated_date, updated_time, updated_location, updated_category, updated_client_name, updated_description, updated_client_id))
+        c.execute("UPDATE events SET category=?, date=?, time=?, location=?, client_name=?,  description=? WHERE client_id=?", 
+                  (updated_category, updated_date, updated_time, updated_location, updated_client_name, updated_description, updated_client_id))
         conn.commit()
         conn.close()
         messagebox.showinfo("Success", "Event updated successfully!")
