@@ -244,6 +244,24 @@ class App(customtkinter.CTk):
             )
             modifyEvents_instance.mainloop()  # Run the modify events GUI
 
+    '''Function to update the selected guest in the treeview'''
+    def update_selected_guest(self):
+        selected_item = self.tree.focus()  # Get the currently selected item
+        if not selected_item:
+            messagebox.showwarning("Select Event", "Please select an guest to update.")  # Show warning if no guest is selected
+            return
+
+        data = self.tree.item(selected_item)["values"]  # Get the values of the selected guest
+        if data:
+            from modifyGuestForm import App as modifyGuest  # Import the modify events GUI
+            modifyEvents_instance = modifyGuest()  # Create an instance of the modify events GUI
+            modifyEvents_instance.show_guest_form(
+                category=data[1],
+                name=data[2],
+                email=data[3],
+            )
+            modifyEvents_instance.mainloop()  # Run the modify events GUI
+
     '''Function to delete the selected event from the treeview'''
     def delete_selected_event(self):
         selected_item = self.tree.focus()  # Get the currently selected item
