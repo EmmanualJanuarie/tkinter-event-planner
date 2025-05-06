@@ -150,7 +150,7 @@ class App(customtkinter.CTk):
 
         conn = sqlite3.connect("events.db")
         c = conn.cursor()
-        c.execute("UPDATE events SET category=?, date=?, time=?, location=?, client_name=?,  description=? client_email=? WHERE client_id=?", 
+        c.execute("UPDATE events SET category=?, date=?, time=?, location=?, client_name=?,  description=?, client_email=? WHERE client_id=?", 
                   (updated_category, updated_date, updated_time, updated_location, updated_client_name, updated_client_email, updated_description, updated_client_id))
         conn.commit()
         conn.close()
