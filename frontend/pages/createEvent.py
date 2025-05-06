@@ -16,7 +16,7 @@ class App(customtkinter.CTk):
 
         # CODE FOR MAIN WINDOW
         self.title("Event Planner | Create Event")  # Title of the form
-        self.geometry("370x480")  # dimensions of the form
+        self.geometry("370x600")  # dimensions of the form
 
         # Main content area
         self.form_frame = customtkinter.CTkFrame(self)
@@ -40,6 +40,7 @@ class App(customtkinter.CTk):
         location = self.entry_location.get()
         category = self.entry_event_type.get()
         client_name = self.entry_client_name.get()
+        client_email = self.entry_client_email.get()
         description = self.text_description.get("1.0", "end").strip()
 
         if not all([category, date, time, location, description]):
@@ -48,8 +49,8 @@ class App(customtkinter.CTk):
 
         conn = sqlite3.connect("events.db")
         c = conn.cursor()
-        c.execute("INSERT INTO events (category, date, time, location, client_name, description) VALUES (?, ?, ?, ?, ?, ?)", 
-            (category, date, time, location, client_name, description))
+        c.execute("INSERT INTO events (category, date, time, location, client_name, client_email, description) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+            (category, date, time, location, client_name, client_email, description))
 
         conn.commit()
         conn.close()
@@ -60,6 +61,7 @@ class App(customtkinter.CTk):
         self.entry_location.delete(0, 'end')
         self.entry_event_type.delete(0, 'end')
         self.entry_client_name.delete(0, 'end')
+        self.entry_client_email.delete(0, 'end')
         self.text_description.delete("1.0", "end")
 
         #Direct user back to eventplanner
@@ -81,6 +83,10 @@ class App(customtkinter.CTk):
         # Insert text into the entry
         self.entry_client_id.insert(0, 'Auto-generated ID')  # Placeholder text
 
+        # Label for Date
+        self.lbl_date = customtkinter.CTkLabel(self.form_frame_content, text="Select Date:")
+        self.lbl_date.grid(row=2, column=1, pady=(10, 0), padx=(0, 220))
+
         # Input | Date
         self.entry_date = tkcalendar.DateEntry(self.form_frame_content, width=45, background='2b2b2b',
                                      foreground='white', borderwidth=1, date_pattern='y-mm-dd')
@@ -96,25 +102,37 @@ class App(customtkinter.CTk):
                                                       width=300, border_width=0, text_color='black')
         self.entry_client_name.grid(row=5, column =1, pady=5, padx=10)
 
+        # Input | Client Email
+        self.entry_client_email = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Client Email", corner_radius=20,
+                                                      width=300, border_width=0, text_color='black')
+        self.entry_client_email.grid(row=6, column =1, pady=5, padx=10)
+
         # Input | Location
         self.entry_location = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Location", corner_radius=20,
                                                       width=300, border_width=0, text_color='black')
-        self.entry_location.grid(row=6, column =1, pady=5, padx=10)
+        self.entry_location.grid(row=7, column =1, pady=5, padx=10)
+
+         # Label for event type
+        self.lbl_event = customtkinter.CTkLabel(self.form_frame_content, text="Select Event:")
+        self.lbl_event.grid(row=8, column=1, pady=(10, 0), padx=(0, 220))
 
         # Input | Event Type (Combo Box)
         self.entry_event_type = customtkinter.CTkComboBox(self.form_frame_content, 
                                                            values=["Wedding", "Birthday Party", "Conference", "Gender Reveals", "Graduation", "Funerals"],
                                                            corner_radius=20, 
                                                            width=300, fg_color="white", text_color='black')
-        self.entry_event_type.grid(row=7, column=1, pady=5, padx=10)
+        self.entry_event_type.grid(row=9, column=1, pady=5, padx=10)
 
+        # Label for Description
+        self.lbl_description = customtkinter.CTkLabel(self.form_frame_content, text="Description:")
+        self.lbl_description.grid(row=10, column=1, pady=(10, 0), padx=(0, 220))
 
         # Input | Description
         self.text_description = customtkinter.CTkTextbox(self.form_frame_content, fg_color="white", height=80, width=300, text_color='black')
-        self.text_description.grid(row=8, column=1, pady=5, padx=10, )
+        self.text_description.grid(row=11, column=1, pady=5, padx=10, )
 
         submit_btn = customtkinter.CTkButton(self.form_frame_content, text="Add Event", command=self.create_event_form)
-        submit_btn.grid(row=9, column=0, columnspan=2, pady=10)
+        submit_btn.grid(row=12, column=0, columnspan=2, pady=10)
 
 if __name__ == "__main__":
     app = App()

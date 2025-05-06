@@ -20,6 +20,7 @@ def init_db():
                     time TEXT,
                     location TEXT,
                     client_name TEXT,
+                    client_email TEXT,
                     description TEXT)''')
     
     # Create the guests table if it doesn't already exist
@@ -131,7 +132,7 @@ class App(customtkinter.CTk):
         self.title("Event Planner | Events")  # Update window title
 
         # Search input for filtering events
-        self.search_input = customtkinter.CTkEntry(self.form_frame_content, placeholder_text="Search...", corner_radius=20,
+        self.search_input = customtkinter.CTkEntry(self.form_frame_content, placeholder_text="Search Event ...", corner_radius=20,
                                                   width=800, border_width=1, fg_color="white", text_color="black")
         self.search_input.pack(padx=10, pady=10)  # Add search input to the form
 
@@ -140,10 +141,10 @@ class App(customtkinter.CTk):
         table_frame.pack(padx=10, pady=10, fill="both", expand=True)
 
         # Treeview for displaying events
-        self.tree = ttk.Treeview(table_frame, columns=("Id" ,"Category", "Date", "Time", "Location", "Client Name", "Description"), show="headings")
-        for col in ("Id","Category", "Date", "Time", "Location", "Client Name","Description"):
+        self.tree = ttk.Treeview(table_frame, columns=("Id" ,"Category", "Date", "Time", "Location", "Client Name","Client Email", "Description"), show="headings")
+        for col in ("Id","Category", "Date", "Time", "Location", "Client Name", "Client Email","Description"):
             self.tree.heading(col, text=col)  # Set column headings
-            self.tree.column(col, width=150 if col in ["Title", "Location"] else 100)  # Set column widths
+            self.tree.column(col, width=150 if col in ["email", "Description"] else 100)  # Set column widths
 
         self.tree.pack(fill="both", expand=True)  # Add the treeview to the table frame
         self.load_events_into_tree()  # Load events from the database into the treeview
@@ -186,8 +187,8 @@ class App(customtkinter.CTk):
         table_frame.pack(padx=10, pady=10, fill="both", expand=True)
 
         # Treeview for displaying events
-        self.tree = ttk.Treeview(table_frame, columns=("Id" ,"category", "name", "email", "client_id", "client_name"), show="headings")
-        for col in ("Id" ,"category", "name", "email", "client_id", "client_name"):
+        self.tree = ttk.Treeview(table_frame, columns=("Id" ,"category", "name", "email", "client_id", "client_name", "client_email"), show="headings")
+        for col in ("Id" ,"category", "name", "email", "client_id", "client_name", "client_email"):
             self.tree.heading(col, text=col)  # Set column headings
             self.tree.column(col, width=150 if col in ["name", "email"] else 100)  # Set column widths
 
@@ -240,7 +241,8 @@ class App(customtkinter.CTk):
                 time=data[3],
                 location=data[4],
                 client_name=data[5],
-                description=data[6]  # Pass the event details to the modify events form
+                client_email=data[6],
+                description=data[7]  # Pass the event details to the modify events form
             )
             modifyEvents_instance.mainloop()  # Run the modify events GUI
 

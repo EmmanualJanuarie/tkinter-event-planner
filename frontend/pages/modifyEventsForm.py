@@ -17,7 +17,7 @@ class App(customtkinter.CTk):
 
         # CODE FOR MAIN WINDOW
         self.title("Event Planner | Modify Events")  # Title of the form
-        self.geometry("370x500")  # dimensions of the form
+        self.geometry("370x620")  # dimensions of the form
 
         # Main content area
         self.form_frame = customtkinter.CTkFrame(self)
@@ -30,7 +30,7 @@ class App(customtkinter.CTk):
         self.show_event_form()
 
     
-    def show_event_form(self, client_id="", title="", date="", time="", location="", category="", client_name="", description=""):
+    def show_event_form(self, client_id="", date="", time="", location="", category="", client_name="", client_email="", description=""):
         self.clear_content()
 
         title_label = customtkinter.CTkLabel(self.form_frame_content, text="Modify Events", font=("Arial", 18, "bold"))
@@ -41,6 +41,10 @@ class App(customtkinter.CTk):
                                                   width=300, border_width=0, text_color='black')
         self.entry_client_id.grid(row=1, column=1, pady=5, padx=10)
         self.entry_client_id.insert(0, client_id)  # Populate with existing title
+
+        # Label for Date
+        self.lbl_date = customtkinter.CTkLabel(self.form_frame_content, text="Select Date:")
+        self.lbl_date.grid(row=2, column=1, pady=(10, 0), padx=(0, 220))
 
         # Input | Date
         self.entry_date = tkcalendar.DateEntry(self.form_frame_content, width=45, background='2b2b2b',
@@ -68,28 +72,42 @@ class App(customtkinter.CTk):
         self.entry_location.grid(row=5, column=1, pady=5, padx=10)
         self.entry_location.insert(0, location)  # Populate with existing location
 
+        # Label for event type
+        self.lbl_event = customtkinter.CTkLabel(self.form_frame_content, text="Select Event:")
+        self.lbl_event.grid(row=6, column=1, pady=(10, 0), padx=(0, 220))
+
         # Input | Event Type (Combo Box)
         self.entry_event_type = customtkinter.CTkComboBox(self.form_frame_content, 
                                                            values=["Wedding", "Birthday Party", "Conference", "Gender Reveals", "Graduation", "Funerals"],
                                                            corner_radius=20, 
                                                            width=300, fg_color="white", text_color='black')
-        self.entry_event_type.grid(row=6, column=1, pady=5, padx=10)
+        self.entry_event_type.grid(row=7, column=1, pady=5, padx=10)
         self.entry_event_type.set(category)  # Populate with existing category
 
         # Input | Client Name
         self.entry_client_name = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Client Name", corner_radius=20,
                                                       width=300, border_width=0, text_color='black')
-        self.entry_client_name.grid(row=7, column=1, pady=5, padx=10)
+        self.entry_client_name.grid(row=8, column=1, pady=5, padx=10)
         self.entry_client_name.insert(0, client_name)  # Populate with existing location
+
+        # Input | Client Email
+        self.entry_client_email = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Client Email", corner_radius=20,
+                                                      width=300, border_width=0, text_color='black')
+        self.entry_client_email.grid(row=9, column=1, pady=5, padx=10)
+        self.entry_client_email.insert(0, client_email)  # Populate with existing location
+
+        # Label for Description
+        self.lbl_description = customtkinter.CTkLabel(self.form_frame_content, text="Description:")
+        self.lbl_description.grid(row=10, column=1, pady=(10, 0), padx=(0, 220))
 
         # Input | Description
         self.text_description = customtkinter.CTkTextbox(self.form_frame_content, fg_color="white", height=80, width=300 , text_color='black')
-        self.text_description.grid(row=8, column=1, pady=5, padx=10)
+        self.text_description.grid(row=11, column=1, pady=5, padx=10)
         self.text_description.insert("1.0", description)  # Populate with existing description
 
         # Button frame
         btn_frame = customtkinter.CTkFrame(self.form_frame_content, fg_color="#333333")
-        btn_frame.grid(row=9, column=0, columnspan=2, pady=10)
+        btn_frame.grid(row=12, column=0, columnspan=2, pady=10)
 
         delete_btn = customtkinter.CTkButton(btn_frame, text="Delete Event", command=lambda: self.delete_event(client_id))
         delete_btn.grid(row=0, column=0, pady=10, padx=20)
@@ -123,16 +141,17 @@ class App(customtkinter.CTk):
         updated_location = self.entry_location.get()
         updated_category = self.entry_location.get()
         updated_client_name = self.entry_client_name.get()
+        updated_client_email = self.entry_client_email.get()
         updated_description = self.text_description.get("1.0", "end-1c")
 
-        if not all([updated_date, updated_time, updated_location, updated_category, updated_client_name, updated_description]):
+        if not all([updated_date, updated_time, updated_location, updated_category, updated_client_name,updated_client_email, updated_description]):
             messagebox.showerror("Input Error", "Please fill all fields.")
             return
 
         conn = sqlite3.connect("events.db")
         c = conn.cursor()
-        c.execute("UPDATE events SET category=?, date=?, time=?, location=?, client_name=?,  description=? WHERE client_id=?", 
-                  (updated_category, updated_date, updated_time, updated_location, updated_client_name, updated_description, updated_client_id))
+        c.execute("UPDATE events SET category=?, date=?, time=?, location=?, client_name=?,  description=? client_email=? WHERE client_id=?", 
+                  (updated_category, updated_date, updated_time, updated_location, updated_client_name, updated_client_email, updated_description, updated_client_id))
         conn.commit()
         conn.close()
         messagebox.showinfo("Success", "Event updated successfully!")

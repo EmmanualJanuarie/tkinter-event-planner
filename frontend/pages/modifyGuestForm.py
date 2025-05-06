@@ -30,7 +30,7 @@ class App(customtkinter.CTk):
         self.show_guest_form()
 
     
-    def show_guest_form(self, client_id="", title="", date="", time="", location="", category="", client_name="", description=""):
+    def show_guest_form(self, client_id="", category="", name="", email=""):
         self.clear_content()
 
         title_label = customtkinter.CTkLabel(self.form_frame_content, text="Modify Events", font=("Arial", 18, "bold"))
@@ -42,64 +42,47 @@ class App(customtkinter.CTk):
         self.entry_client_id.grid(row=1, column=1, pady=5, padx=10)
         self.entry_client_id.insert(0, client_id)  # Populate with existing title
 
-        # Input | Date
-        self.entry_date = tkcalendar.DateEntry(self.form_frame_content, width=45, background='2b2b2b',
-                                        foreground='white', borderwidth=1, date_pattern='y-mm-dd')
-        self.entry_date.grid(row=3, column=1, pady=5, padx=10)
-
-        # Check if the date is valid before setting it
-        if date:
-            try:
-                # Assuming date is in 'YYYY-MM-DD' format, convert it to a date object
-                year, month, day = map(int, date.split('-'))
-                self.entry_date.set_date(datetime.date(year, month, day))  # Set the date
-            except ValueError:
-                messagebox.showerror("Date Error", f"Invalid date format: {date}")
-
-        # Input | Time
-        self.entry_time = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Time", corner_radius=20,
-                                                  width=300, border_width=0, text_color='black')
-        self.entry_time.grid(row=4, column=1, pady=5, padx=10)
-        self.entry_time.insert(0, time)  # Populate with existing time
-
-        # Input | Location
-        self.entry_location = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Location", corner_radius=20,
-                                                      width=300, border_width=0, text_color='black')
-        self.entry_location.grid(row=5, column=1, pady=5, padx=10)
-        self.entry_location.insert(0, location)  # Populate with existing location
-
         # Input | Event Type (Combo Box)
         self.entry_event_type = customtkinter.CTkComboBox(self.form_frame_content, 
                                                            values=["Wedding", "Birthday Party", "Conference", "Gender Reveals", "Graduation", "Funerals"],
                                                            corner_radius=20, 
                                                            width=300, fg_color="white", text_color='black')
-        self.entry_event_type.grid(row=6, column=1, pady=5, padx=10)
+        self.entry_event_type.grid(row=2, column=1, pady=5, padx=10)
         self.entry_event_type.set(category)  # Populate with existing category
 
-        # Input | Client Name
-        self.entry_client_name = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Client Name", corner_radius=20,
-                                                      width=300, border_width=0, text_color='black')
-        self.entry_client_name.grid(row=7, column=1, pady=5, padx=10)
-        self.entry_client_name.insert(0, client_name)  # Populate with existing location
+         # Input | Event Type (Combo Box)
+        self.entry_clientid_type = customtkinter.CTkComboBox(self.form_frame_content, 
+                                                           values=["1", "2", "3", "4", "5", "6"],
+                                                           corner_radius=20, 
+                                                           width=300, fg_color="white", text_color='black')
+        self.entry_clientid_type.grid(row=3, column=1, pady=5, padx=10)
+        self.entry_clientid_type.set(category)  # Populate with existing category
 
-        # Input | Description
-        self.text_description = customtkinter.CTkTextbox(self.form_frame_content, fg_color="white", height=80, width=300 , text_color='black')
-        self.text_description.grid(row=8, column=1, pady=5, padx=10)
-        self.text_description.insert("1.0", description)  # Populate with existing description
+        # Input | Guest Name
+        self.entry_guest_name = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Guest Name", corner_radius=20,
+                                                      width=300, border_width=0, text_color='black')
+        self.entry_guest_name.grid(row=4, column=1, pady=5, padx=10)
+        self.entry_guest_name.insert(0, name)  # Populate with existing location
+
+        # Input | Guest Email
+        self.entry_guest_email = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Guest Email", corner_radius=20,
+                                                      width=300, border_width=0, text_color='black')
+        self.entry_guest_email.grid(row=5, column=1, pady=5, padx=10)
+        self.entry_guest_email.insert(0, email)  # Populate with existing location
 
         # Button frame
         btn_frame = customtkinter.CTkFrame(self.form_frame_content, fg_color="#333333")
-        btn_frame.grid(row=9, column=0, columnspan=2, pady=10)
+        btn_frame.grid(row=6, column=0, columnspan=2, pady=10)
 
-        delete_btn = customtkinter.CTkButton(btn_frame, text="Delete Event", command=lambda: self.delete_event(client_id))
+        delete_btn = customtkinter.CTkButton(btn_frame, text="Delete Guest", command=lambda: self.delete_event(client_id))
         delete_btn.grid(row=0, column=0, pady=10, padx=20)
 
-        update_btn = customtkinter.CTkButton(btn_frame, text="Update Event", command=self.update_event)
+        update_btn = customtkinter.CTkButton(btn_frame, text="Update Guest", command=self.update_event)
         update_btn.grid(row=0, column=1, pady=10)
 
         
     def delete_event(self, client_id):
-        confirm = messagebox.askyesno("Delete", f"Are you sure you want to delete the event with ID: '{client_id}'?")
+        confirm = messagebox.askyesno("Delete", f"Are you sure you want to delete the guest with ID: '{client_id}'?")
         if confirm:
             conn = sqlite3.connect("events.db")
             c = conn.cursor()

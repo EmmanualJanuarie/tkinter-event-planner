@@ -4,7 +4,7 @@ import os
 from tkinter import messagebox
 from customtkinter import CTkImage  # Import CTkImage
 from PIL import Image, ImageTk, ImageDraw
-sys.path.append(os.path.abspath("C:\\Users\\tallyta\\Documents\\GitHub\\tkinter-event-planner"))
+sys.path.append(os.path.abspath("C:\\Users\\Emmanual.Januarie\\Documents\\GitHub\\tkinter-event-planner"))
 
 #Importing registration GUI
 from registration import App as RegistrationGUI
