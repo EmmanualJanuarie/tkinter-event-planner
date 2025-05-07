@@ -26,10 +26,12 @@ def init_db():
     # Create the guests table if it doesn't already exist
     c.execute('''CREATE TABLE IF NOT EXISTS guests (
                     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    client_id INTEGER,
+                    event_title TEXT,
                     name TEXT, 
                     email TEXT,
-                    event_title TEXT,
+                    client_id INTEGER,
+                    client_name,
+                    client_email,
                     FOREIGN KEY (client_id) REFERENCES events(client_id))''')
     
     conn.commit()  # Commit the changes to the database
