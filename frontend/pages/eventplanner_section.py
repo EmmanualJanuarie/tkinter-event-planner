@@ -181,6 +181,7 @@ class App(customtkinter.CTk):
 
     '''Function to display saved events in a list'''
     def show_saved_guests(self):
+        from frontend.pages.generate_invitations import generate_invitation_for_selected_guest
         self.clear_content()  # Clear previous content
         self.title("Event Planner | Guests")  # Update window title
 
@@ -209,7 +210,7 @@ class App(customtkinter.CTk):
         guest_add.grid(row=0, column=0, pady=(0, 0), padx=(0, 0))
 
         # Button to create a new event
-        delete_btn = customtkinter.CTkButton(btn_frame, text="Invitations")
+        delete_btn = customtkinter.CTkButton(btn_frame, text="Invitations", command=lambda:generate_invitation_for_selected_guest(self.tree))
         delete_btn.grid(row=0, column=1, padx=10)
 
     '''Function to load events from the database into the treeview'''
