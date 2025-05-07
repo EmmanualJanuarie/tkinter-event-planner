@@ -198,7 +198,7 @@ class App(customtkinter.CTk):
         self.load_guests_into_tree()  # Load events from the database into the treeview
 
         # Bind the selection event to update the selected event
-        # self.tree.bind("<<TreeviewSelect>>", lambda event: self.update_selected_event())
+        self.tree.bind("<<TreeviewSelect>>", lambda event: self.update_selected_guest())
 
         # Frame for action buttons
         btn_frame = customtkinter.CTkFrame(self.form_frame_content, fg_color="#333333")
