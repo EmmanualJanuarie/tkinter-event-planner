@@ -225,12 +225,28 @@ class App(customtkinter.CTk):
 
         # Send the quote email
         self.send_quote_email(email, food_type, sides, beverages, guest_count, total_price)
+        
+        # Insert the total sales data into the database
+        self.insert_total_sales(email, food_type, sides, beverages, guest_count, total_price)
 
         # Show success message
         messagebox.showinfo("Success", "Quote created and sent successfully!")
 
         # Clear the form after submission
         self.clear_form()
+        
+    def insert_total_sales(self, email, food_type, sides, beverages, guest_count, total_price):
+        try:
+            conn = sqlite3.connect('events.db')
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO total_of_sales (client_email, food_type, sides, beverages, guest_count, total_price)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (email, food_type, sides, beverages, guest_count, total_price))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            messagebox.showerror("Database Error", f"Error inserting total sales data: {str(e)}")
 
     def show_quote_form(self):
         self.clear_content()

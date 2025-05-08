@@ -1,6 +1,8 @@
 import customtkinter
 from tkinter import ttk, messagebox
 import sqlite3
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 
 # Set the appearance mode to dark and the default color theme to blue
 customtkinter.set_appearance_mode("dark")
@@ -30,13 +32,26 @@ def init_db():
                     name TEXT, 
                     email TEXT,
                     client_id INTEGER,
-                    client_name,
-                    client_email,
+                    client_name TEXT,
+                    client_email TEXT,
                     FOREIGN KEY (client_id) REFERENCES events(client_id))''')
+    
+    #function to create total_of_sales database
+    c.execute('''
+            CREATE TABLE IF NOT EXISTS total_of_sales (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                client_email TEXT NOT NULL,
+                food_type TEXT NOT NULL,
+                sides TEXT NOT NULL,
+                beverages TEXT NOT NULL,
+                guest_count INTEGER NOT NULL,
+                total_price REAL NOT NULL
+            )
+        ''')
     
     conn.commit()  # Commit the changes to the database
     conn.close()   # Close the database connection
-
+    
 # Main application class for the Event Planner
 class App(customtkinter.CTk):
     def __init__(self):
@@ -125,9 +140,190 @@ class App(customtkinter.CTk):
     def show_dashboard(self):
         self.clear_content()  # Clear previous content
         self.title("Event Planner | Dashboard")  # Update window title
-        title = customtkinter.CTkLabel(self.form_frame_content, text="Dashboard", font=("Arial", 18, "bold"))
-        title.pack(pady=20)  # Add title label to the dashboard
 
+        dashboard_container = customtkinter.CTkFrame(self.form_frame_content)
+        dashboard_container.pack(padx=2, pady=2, fill="both", expand=True)
+
+        # Create vertical container to hold top charts, bottom line chart, and triple charts row
+        charts_vertical_container = customtkinter.CTkFrame(dashboard_container, fg_color="#2b2b2b")
+        charts_vertical_container.pack(fill="both", expand=True)
+
+        # Top horizontal frame for bar and pie charts (2 charts)
+        top_charts_frame = customtkinter.CTkFrame(charts_vertical_container)
+        top_charts_frame.pack(side="top", fill="both", expand=True)
+
+        # Bar Chart Frame (left)
+        bar_chart_frame = customtkinter.CTkFrame(top_charts_frame,
+                                                corner_radius=25, border_width=0)
+        bar_chart_frame.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+
+        # Pie Chart Frame (right)
+        pie_chart_frame = customtkinter.CTkFrame(top_charts_frame,
+                                                corner_radius=25, border_width=0)
+        pie_chart_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
+
+        # Bottom frame for line chart (total sales over time)
+        bottom_chart_frame = customtkinter.CTkFrame(charts_vertical_container,
+                                                    corner_radius=25, border_width=0, fg_color="#333333")
+        bottom_chart_frame.pack(side="top", fill="both", expand=True, padx=10, pady=10)
+
+        # Frame for three charts row (food_type, sides, beverages)
+        triple_charts_frame = customtkinter.CTkFrame(charts_vertical_container)
+        triple_charts_frame.pack(side="top", fill="both", expand=True, padx=10, pady=10)
+
+        # Create three equal frames side by side
+        food_type_frame = customtkinter.CTkFrame(triple_charts_frame,
+                                                corner_radius=25, border_width=0)
+        food_type_frame.pack(side="left", fill="both", expand=True, padx=5)
+
+        sides_frame = customtkinter.CTkFrame(triple_charts_frame,
+                                            corner_radius=25, border_width=0)
+        sides_frame.pack(side="left", fill="both", expand=True, padx=5)
+
+        beverages_frame = customtkinter.CTkFrame(triple_charts_frame,
+                                                corner_radius=25, border_width=0)
+        beverages_frame.pack(side="left", fill="both", expand=True, padx=5)
+
+        ### Now prepare the data to plot ###
+
+        # Fetch event data for top charts 
+        event_counts = self.get_event_counts()
+        event_types = list(event_counts.keys())
+        counts = list(event_counts.values())
+
+        # -- Top - Bar chart (Most Selected Events) --
+        fig1, ax1 = plt.subplots(figsize=(3, 3), dpi=100)
+        ax1.bar(event_types, counts, color="#1f6aa5")
+        ax1.set_title("Most Selected Events", color="white")
+        ax1.set_xlabel("Events", color="white")
+        ax1.set_ylabel("Number of Selections", color="white")
+        ax1.tick_params(axis='x', rotation=0, colors='white')
+        ax1.tick_params(axis='y', colors='white')
+        fig1.patch.set_facecolor('#333333')
+        ax1.set_facecolor('white')
+        plt.tight_layout()
+
+        canvas1 = FigureCanvasTkAgg(fig1, master=bar_chart_frame)
+        canvas1.draw()
+        canvas1.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+
+        # -- Top - Pie chart (Total Events) --
+        fig2, ax2 = plt.subplots(figsize=(3, 3), dpi=100)
+        ax2.pie(counts, labels=event_types, autopct='%1.1f%%', startangle=90, colors=plt.cm.Paired.colors)
+        ax2.set_title("Total Events", color="white")
+        fig2.patch.set_facecolor('#333333')
+        ax2.set_facecolor('white')
+        plt.tight_layout()
+
+        canvas2 = FigureCanvasTkAgg(fig2, master=pie_chart_frame)
+        canvas2.draw()
+        canvas2.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+
+        # -- Bottom - Line chart for total_price over time --
+        try:
+            with sqlite3.connect("events.db") as conn:
+                c = conn.cursor()
+                c.execute("SELECT total_price FROM total_of_sales ORDER BY id ASC")
+                total_prices = [row[0] for row in c.fetchall()]
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not fetch sales data: {e}")
+            total_prices = []
+
+        x_vals = list(range(1, len(total_prices) + 1))
+
+        fig3, ax3 = plt.subplots(figsize=(6, 2.5), dpi=100)
+        ax3.plot(x_vals, total_prices, marker='o', linestyle='-', color='green')
+        ax3.set_title("Total Sales Over Time", color="white")
+        ax3.set_xlabel("Sale Number", color="white")
+        ax3.set_ylabel("Total Price (R)", color="white")
+        ax3.tick_params(colors='white')
+        fig3.patch.set_facecolor('#333333')
+        ax3.set_facecolor('white')
+        plt.tight_layout()
+
+        canvas3 = FigureCanvasTkAgg(fig3, master=bottom_chart_frame)
+        canvas3.draw()
+        canvas3.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+
+        # For food_types, sides, beverages from total_of_sales, get counts
+        try:
+            with sqlite3.connect("events.db") as conn:
+                c = conn.cursor()
+                # Counts for food_type
+                c.execute("SELECT food_type, COUNT(*) FROM total_of_sales GROUP BY food_type")
+                food_data = c.fetchall()
+                food_labels = [row[0] for row in food_data]
+                food_counts = [row[1] for row in food_data]
+
+                # Counts for sides
+                c.execute("SELECT sides, COUNT(*) FROM total_of_sales GROUP BY sides")
+                sides_data = c.fetchall()
+                sides_labels = [row[0] for row in sides_data]
+                sides_counts = [row[1] for row in sides_data]
+
+                # Counts for beverages
+                c.execute("SELECT beverages, COUNT(*) FROM total_of_sales GROUP BY beverages")
+                bev_data = c.fetchall()
+                bev_labels = [row[0] for row in bev_data]
+                bev_counts = [row[1] for row in bev_data]
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not fetch food/sides/beverages data: {e}")
+            food_labels = food_counts = sides_labels = sides_counts = bev_labels = bev_counts = []
+
+        # Food Type bar chart
+        fig4, ax4 = plt.subplots(figsize=(3, 3), dpi=100)
+        ax4.bar(food_labels, food_counts, color="#FF7F50")
+        ax4.set_title("Food Types", color="white")
+        ax4.tick_params(axis='x', rotation=0, colors='white')
+        ax4.tick_params(axis='y', colors='white')
+        fig4.patch.set_facecolor('#333333')
+        ax4.set_facecolor('white')
+        plt.tight_layout()
+
+        canvas4 = FigureCanvasTkAgg(fig4, master=food_type_frame)
+        canvas4.draw()
+        canvas4.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Sides bar chart
+        fig5, ax5 = plt.subplots(figsize=(3, 3), dpi=100)
+        ax5.barh(sides_labels, sides_counts, color="#6A5ACD")
+        ax5.set_title("Sides", color="white")
+        ax5.tick_params(axis='x', rotation=0, colors='white')
+        ax5.tick_params(axis='y', colors='white')
+        fig5.patch.set_facecolor('#333333')
+        ax5.set_facecolor('white')
+        plt.tight_layout()
+
+        canvas5 = FigureCanvasTkAgg(fig5, master=sides_frame)
+        canvas5.draw()
+        canvas5.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Beverages bar chart
+        fig6, ax6 = plt.subplots(figsize=(3, 3), dpi=100)
+        ax6.bar(bev_labels, bev_counts, color="#20B2AA")
+        ax6.set_title("Beverages", color="white")
+        ax6.tick_params(axis='x', rotation=10, colors='white')
+        ax6.tick_params(axis='y', colors='white')
+        fig6.patch.set_facecolor('#333333')
+        ax6.set_facecolor('white')
+        plt.tight_layout()
+
+        canvas6 = FigureCanvasTkAgg(fig6, master=beverages_frame)
+        canvas6.draw()
+        canvas6.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+
+
+    def get_event_counts(self):
+        """Fetch the count of each event type from the database."""
+        event_counts = {}
+        with sqlite3.connect("events.db") as conn:
+            c = conn.cursor()
+            c.execute("SELECT category, COUNT(*) FROM events GROUP BY category")  # Group by event category
+            rows = c.fetchall()  # Fetch all results
+        for row in rows:
+            event_counts[row[0]] = row[1]  # Map event category to its count
+        return event_counts   
+        
     '''Function to display saved events in a list'''
     def show_saved_events(self):
         self.clear_content()  # Clear previous content

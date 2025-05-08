@@ -4,6 +4,7 @@ import os
 from tkinter import messagebox
 from customtkinter import CTkImage  # Import CTkImage
 from PIL import Image, ImageTk, ImageDraw
+import sqlite3, hashlib
 sys.path.append(os.path.abspath("C:\\Users\\Emmanual.Januarie\\Documents\\GitHub\\tkinter-event-planner"))
 
 #Importing registration GUI
@@ -33,7 +34,7 @@ class App(customtkinter.CTk):
     '''Creating function to drect user to event planner GUI'''
     
     def to_event_planner_section(self):
-        from frontend.pages.eventplanner_section import App as eventPlannerGUI
+        from eventplanner_section import App as eventPlannerGUI
         # Code to remove current GUI
         self.destroy()  # Corrected from destory() to destroy()
 
@@ -41,15 +42,27 @@ class App(customtkinter.CTk):
         self.event_planner_gui.mainloop()  # This will run the GUI
     
     '''Fabricated function to direct user to event planner form, if password matches database values'''
-    def login_Authentication(self, email, password):  # Add self as the first parameter
-        if email == "johndoe123@gmail.com" and password == "P@ssword123":
-            messagebox.showwarning("Successful Login", "Directing you to main page")
-
-            # ESTABLISHING CODE TO DIRECT TO EVENT PLANNER
-            self.to_event_planner_section()  # Call the method on the current instance
-            
-        else:
-            messagebox.showerror("Error Occurred", "Password or email does not exist!")
+    def login_Authentication(self, email, password):
+        try:
+            # Connect to the SQLite database
+            conn = sqlite3.connect("events.db")
+            c = conn.cursor()
+            # Hash the password
+            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            # Query the database to check if the email and password match
+            c.execute("SELECT * FROM registration WHERE email = ? AND password = ?", (email, hashed_password))
+            # Fetch the result
+            result = c.fetchone()
+            # Close the database connection
+            conn.close()
+            # If a result is found, it means the email and password match
+            if result:
+                messagebox.showwarning("Successful Login", "Directing you to main page")
+                self.to_event_planner_section()
+            else:
+                messagebox.showerror("Error Occurred", "Password or email does not exist!")
+        except sqlite3.Error as e:
+            messagebox.showerror("Database Error", f"An error occurred: {e}")
 
     def create_login_form(self):
 
@@ -61,7 +74,7 @@ class App(customtkinter.CTk):
             self.toRegistration_lbl.configure(text_color="gray")
 
         # Create a frame for the form
-        form_frame = customtkinter.CTkFrame(self, width=100)  # Set width and height
+        form_frame = customtkinter.CTkFrame(self, width=500)  # Set width and height
         form_frame.grid(row=0, column=0, padx=20, pady=20)
 
 

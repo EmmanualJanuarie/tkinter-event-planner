@@ -139,7 +139,7 @@ class App(customtkinter.CTk):
         updated_date = self.entry_date.get()
         updated_time = self.entry_time.get()
         updated_location = self.entry_location.get()
-        updated_category = self.entry_location.get()
+        updated_category = self.entry_event_type.get()
         updated_client_name = self.entry_client_name.get()
         updated_client_email = self.entry_client_email.get()
         updated_description = self.text_description.get("1.0", "end-1c")
@@ -150,7 +150,7 @@ class App(customtkinter.CTk):
 
         conn = sqlite3.connect("events.db")
         c = conn.cursor()
-        c.execute("UPDATE events SET category=?, date=?, time=?, location=?, client_name=?,  description=?, client_email=? WHERE client_id=?", 
+        c.execute("UPDATE events SET category=?, date=?, time=?, location=?, client_name=?, client_email=?, description=? WHERE client_id=?", 
                   (updated_category, updated_date, updated_time, updated_location, updated_client_name, updated_client_email, updated_description, updated_client_id))
         conn.commit()
         conn.close()
