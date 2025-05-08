@@ -181,7 +181,7 @@ class App(customtkinter.CTk):
 
     '''Function to display saved events in a list'''
     def show_saved_guests(self):
-        from frontend.pages.generate_invitations import generate_invitation_for_selected_guest
+        from generate_invitations import generate_invitation_for_selected_guest
         self.clear_content()  # Clear previous content
         self.title("Event Planner | Guests")  # Update window title
 
@@ -206,7 +206,7 @@ class App(customtkinter.CTk):
         btn_frame.pack(pady=10)
 
         # Button to create a Guest
-        guest_add = customtkinter.CTkButton(btn_frame, text="Add Guests",command=self.toggle_createGuestForm, fg_color= "red")
+        guest_add = customtkinter.CTkButton(btn_frame, text="Add Guests",command=self.toggle_createGuestForm)
         guest_add.grid(row=0, column=0, pady=(0, 0), padx=(0, 0))
 
         # Button to create a new event
@@ -261,9 +261,11 @@ class App(customtkinter.CTk):
             from modifyGuestForm import App as modifyGuest  # Import the modify events GUI
             modifyEvents_instance = modifyGuest()  # Create an instance of the modify events GUI
             modifyEvents_instance.show_guest_form(
+                guest_id=data[0],
                 category=data[1],
                 name=data[2],
                 email=data[3],
+                client_id=data[4]
             )
             modifyEvents_instance.mainloop()  # Run the modify events GUI
 

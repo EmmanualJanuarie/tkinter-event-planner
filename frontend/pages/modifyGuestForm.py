@@ -12,7 +12,7 @@ class App(customtkinter.CTk):
 
         # CODE FOR MAIN WINDOW
         self.title("EVENT PLANNER | Modify Guest")  # Title of the form
-        self.geometry("360x370")  # Dimensions of the form
+        self.geometry("380x460")  # Dimensions of the form
 
         # Main content area
         self.form_frame = customtkinter.CTkFrame(self)
@@ -28,50 +28,60 @@ class App(customtkinter.CTk):
             widget.destroy()
 
     # Call the function to create the form and image
-    def show_guest_form(self, client_id="", category="", name="", email=""):
+    def show_guest_form(self, guest_id="", category="", name="", email="", client_id="" ):
         self.clear_content()
         self.title("Event Planner | Modify Guest")
 
         title = customtkinter.CTkLabel(self.form_frame_content, text="Modify Guests", font=("Arial", 18, "bold"))
         title.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
+        
+        # Label for event type
+        self.lbl_event = customtkinter.CTkLabel(self.form_frame_content, text="Guest ID:")
+        self.lbl_event.grid(row=1, column=0, pady=(10, 0), padx=(0, 220))
+        
+        # Input | Guest Id
+        self.entry_guest_id = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Guest ID", corner_radius=20,
+                                                      width=300, border_width=0, text_color='black')
+        self.entry_guest_id.grid(row=2, column=0, pady=5, padx=10)
+        self.entry_guest_id.insert(0, guest_id)  # Populate with existing title
 
         # Label for event type
-        self.lbl_event = customtkinter.CTkLabel(self.form_frame_content, text="Select Hosts:")
-        self.lbl_event.grid(row=1, column=0, pady=(10, 0), padx=(0, 220))
+        self.lbl_event = customtkinter.CTkLabel(self.form_frame_content, text="Select Host:")
+        self.lbl_event.grid(row=3, column=0, pady=(10, 0), padx=(0, 220))
 
         # Input | Event Type (Combo Box)
         self.entry_host_id = customtkinter.CTkComboBox(self.form_frame_content, corner_radius=20, width=300, fg_color="white", text_color='black', command=self.populate_guest_info)
-        self.entry_host_id.grid(row=2, column=0, pady=5, padx=10)
+        self.entry_host_id.grid(row=4, column=0, pady=5, padx=10)
         self.load_client_ids()  # Load client IDs into the combo box
         self.entry_host_id.set(client_id)  # Populate with existing host id
 
         # Input | Guest Name
         self.guest_name_entry = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Guest Name", corner_radius=20,
                                                       width=300, border_width=0, text_color='black')
-        self.guest_name_entry.grid(row=3, column=0, pady=5, padx=10)
+        self.guest_name_entry.grid(row=5, column=0, pady=5, padx=10)
         self.guest_name_entry.insert(0, name)  # Populate with existing guest name
 
         # Input | Guest Email 
         self.guest_email_entry = customtkinter.CTkEntry(self.form_frame_content, fg_color="white", placeholder_text="Guest Email", corner_radius=20,
                                                       width=300, border_width=0, text_color='black')
-        self.guest_email_entry.grid(row=4, column=0, pady=5, padx=10)
+        self.guest_email_entry.grid(row=6, column=0, pady=5, padx=10)
         self.guest_email_entry.insert(0, email)  # Populate with existing guest email
         
         # Label for category
         self.lbl_event = customtkinter.CTkLabel(self.form_frame_content, text="Event Type:")
-        self.lbl_event.grid(row=5, column=0, pady=(10, 0), padx=(0, 220))
+        self.lbl_event.grid(row=7, column=0, pady=(10, 0), padx=(0, 220))
 
         # Input | Event Type (Combo Box)
         self.entry_event_type = customtkinter.CTkComboBox(self.form_frame_content, 
                                                            values=["Wedding", "Birthday Party", "Conference", "Gender Reveals", "Graduation", "Funerals"],
                                                            corner_radius=20, 
                                                            width=300, fg_color="white", text_color='black')
-        self.entry_event_type.grid(row=6, column=0, pady=5, padx=10)
+        self.entry_event_type.grid(row=8, column=0, pady=5, padx=10)
         self.entry_event_type.set(category)  # Populate with existing event type
 
         # Button frame
         btn_frame = customtkinter.CTkFrame(self.form_frame_content, fg_color="#333333")
-        btn_frame.grid(row=7, column=0, columnspan=2, pady=10)
+        btn_frame.grid(row=9, column=0, columnspan=2, pady=10)
 
         delete_btn = customtkinter.CTkButton(btn_frame, text="Delete Guest", command=lambda: self.delete_event(client_id))
         delete_btn.grid(row=0, column=0, pady=10, padx=20)
@@ -79,14 +89,14 @@ class App(customtkinter.CTk):
         update_btn = customtkinter.CTkButton(btn_frame, text="Update Guest", command=self.update_event)
         update_btn.grid(row=0, column=1, pady=10)
         
-    def delete_event(self, client_id):
-        confirm = messagebox.askyesno("Delete", f"Are you sure you want to delete the guest with ID: '{client_id}'?")
+    def delete_event(self, guest_id):
+        confirm = messagebox.askyesno("Delete", f"Are you sure you want to delete the guest with ID: '{guest_id}'?")
         if confirm:
             conn = sqlite3.connect("events.db")
             c = conn.cursor()
             
             # Wrap client_id in a tuple
-            c.execute("DELETE FROM events WHERE client_id=?", (client_id,))
+            c.execute("DELETE FROM guests WHERE client_id=?", (guest_id,))
             
             conn.commit()
             conn.close()
