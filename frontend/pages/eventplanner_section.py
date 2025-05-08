@@ -56,6 +56,8 @@ def init_db():
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()  # Initialize the parent class
+        self.debounce_timer = None  # Timer for debounce
+        
         self.title("EVENT PLANNER")  # Set the window title
         self.geometry("1090x519")  # Set the window size
 
@@ -333,6 +335,9 @@ class App(customtkinter.CTk):
         self.search_input = customtkinter.CTkEntry(self.form_frame_content, placeholder_text="Search Event ...", corner_radius=20,
                                                   width=800, border_width=1, fg_color="white", text_color="black")
         self.search_input.pack(padx=10, pady=10)  # Add search input to the form
+        
+        # Bind KeyRelease event to call search_events when user types
+        self.search_input.bind("<KeyRelease>", lambda event: self.search_events())
 
         # Frame for the events table
         table_frame = customtkinter.CTkFrame(self.form_frame_content, width=0)
@@ -361,6 +366,35 @@ class App(customtkinter.CTk):
         # Button to create a new event
         delete_btn = customtkinter.CTkButton(btn_frame, text="Create Event", command=self.toggle_createEventForm)
         delete_btn.grid(row=0, column=1, padx=10)
+        
+    def search_events(self):
+        if self.debounce_timer:
+            self.after_cancel(self.debounce_timer)  # Cancel the previous timer
+        # Set a new timer to call the actual search function after 300ms
+        self.debounce_timer = self.after(300, self.perform_search)
+        
+    def perform_search(self):
+        search_term = self.search_input.get().strip()
+        # Clear the current treeview
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+        if not search_term:
+            self.load_events_into_tree()  # Show all events if search term is empty
+            return
+        with sqlite3.connect("events.db") as conn:
+            c = conn.cursor()
+            query = """
+                SELECT * FROM events
+                WHERE category LIKE ? OR
+                    client_email LIKE ? OR
+                    location LIKE ? OR
+                    client_name LIKE ?
+            """
+            search_pattern = f"%{search_term}%"
+            c.execute(query, (search_pattern, search_pattern, search_pattern, search_pattern))
+            results = c.fetchall()
+        for event in results:
+            self.tree.insert("", "end", values=event)
 
     '''Function to load guests from the database into the treeview'''
     def load_guests_into_tree(self):
