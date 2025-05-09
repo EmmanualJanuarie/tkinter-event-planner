@@ -2,6 +2,7 @@ import customtkinter
 from tkinter import ttk, messagebox
 import sqlite3
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from PIL import Image, ImageTk, ImageDraw
 import matplotlib.pyplot as plt
 
 # Set the appearance mode to dark and the default color theme to blue
@@ -102,6 +103,10 @@ class App(customtkinter.CTk):
         self.label.pack(pady=20)
 
         # Add buttons to the sidebar for different functionalities
+        self.dashboard_btn = customtkinter.CTkButton(self.sidebar_frame, text="Home", fg_color="#2b2b2b", hover_color="gray",
+                                                     command=self.show_home)
+        self.dashboard_btn.pack(pady=10)
+
         self.dashboard_btn = customtkinter.CTkButton(self.sidebar_frame, text="Dashboard", fg_color="#2b2b2b", hover_color="gray",
                                                      command=self.show_dashboard)
         self.dashboard_btn.pack(pady=10)
@@ -131,12 +136,33 @@ class App(customtkinter.CTk):
         self.form_frame_content = customtkinter.CTkFrame(self.form_frame)
         self.form_frame_content.pack(padx=20, pady=20, fill="both", expand=True)
 
-        self.show_dashboard()  # Display the dashboard by default when the app starts
+        self.show_home()  # Display the dashboard by default when the app starts
 
     '''Function to clear the content of the main form frame'''
     def clear_content(self):
         for widget in self.form_frame_content.winfo_children():
             widget.destroy()  # Remove all widgets from the content area
+    
+    def show_home(self):
+        self.clear_content()
+        self.title("Event Planner | Home")
+ 
+        # Load and display background image
+        bg_image = Image.open("frontend/src/assests/event.jpg")
+        bg_image = bg_image.resize((850, 400), Image.LANCZOS)
+ 
+        self.bg_image_tk = ImageTk.PhotoImage(bg_image)
+        bg_label = customtkinter.CTkLabel(self.form_frame_content, image=self.bg_image_tk, text="")
+        bg_label.pack(fill="both", expand=True, padx=20, pady=20)
+ 
+        # Transparent text overlays
+        title = customtkinter.CTkLabel(self.form_frame_content, text="", font=("Arial", 30, "bold"), text_color="white")
+        title.place(relx=0.5, rely=0.2, anchor="center")
+       
+        subtitle = customtkinter.CTkLabel(self.form_frame_content, text="Plan. Organize. Celebrate.", font=("Arial", 30, "italic"),                      text_color="white")
+        subtitle.place(relx=0.5, rely=0.3, anchor="center")
+       
+        info = customtkinter.CTkLabel(self.form_frame_content, text="Effortlessly manage your events, guests, and quotes all in one place.\n\nStart creating unforgettable moments today.", font=("Arial", 18), text_color="blue")
 
     '''Function to display the dashboard view'''
     def show_dashboard(self):
